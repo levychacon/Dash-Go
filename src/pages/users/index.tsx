@@ -10,6 +10,7 @@ import {
   Th,
   Checkbox,
   Tbody,
+  Spinner,
   Td,
   Text,
   useBreakpointValue,
@@ -19,12 +20,38 @@ import { SideBar } from "../../components/Sidebar";
 import { Pagination } from "../../components/Pagination";
 import { RiAddLine, RiPencilLine } from "react-icons/ri";
 import Link from "next/link";
+import { useEffect } from "react";
+import { useQuery } from "react-query";
 
 export default function UsersList() {
+  const { data, isLoading, error } = useQuery("users", async () => {
+    const response = await fetch("http://localhost:3000/api/users");
+    const data = response.json();
+
+    return data;
+  });
+
+  const users = data?.users.map(user=>{
+    return{
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      createdAt: new Date(user.createdAt).toLocaleDateString('pt-BR',{
+        day:'2-digit',
+        month:'long',
+        year: 'numeric'
+
+      })
+
+
+  }
+  })
+
   const isWideVersion = useBreakpointValue({
     base: false,
     lg: true,
   });
+
   return (
     <Box>
       <Header />
@@ -48,47 +75,65 @@ export default function UsersList() {
             </Link>
           </Flex>
 
-          <Table colorScheme="whiteAlfa">
-            <Thead>
-              <Tr>
-                <Th px={["4", "4", "6"]} color="gray.300" width="8">
-                  <Checkbox colorScheme="pink" />
-                </Th>
-                <Th>usuário</Th>
-                {isWideVersion && <Th>Data de cadastro</Th>}
-                <Th width="8"></Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              <Tr>
-                <Td px={["4", "4", "6"]}>
-                  <Checkbox colorScheme="pink" />
-                </Td>
+          {isLoading ? (
+            <Flex justify="center">
+              <Spinner />
+            </Flex>
+          ) : error?(
+            <Flex justify="center">
+              <Text>Falha ao carregar os dados dos usuários</Text>
+            </Flex>
+          ): (
+            <>
+              <Table colorScheme="whiteAlfa">
+                <Thead>
+                  <Tr>
+                    <Th px={["4", "4", "6"]} color="gray.300" width="8">
+                      <Checkbox colorScheme="pink" />
+                    </Th>
+                    <Th>usuário</Th>
+                    {isWideVersion && <Th>Data de cadastro</Th>}
+                    <Th width="8"></Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                {users.map(user=>{
+                  return(
+                    <Tr key={user.id}>
+                    <Td px={["4", "4", "6"]}>
+                      <Checkbox colorScheme="pink" />
+                    </Td>
 
-                <Td>
-                  <Box>
-                    <Text fontWeight="bold">Levy Almeida de Lima Chacon</Text>
-                    <Text fontSize="sm" color="gray.300">
-                      levychacon@yahoo.com
-                    </Text>
-                  </Box>
-                </Td>
-                {isWideVersion && <Td>04/09/2021</Td>}
-                <Td>
-                  <Button
-                    as="a"
-                    colorScheme="purple"
-                    size="sm"
-                    fontSize="sm"
-                    leftIcon={<Icon as={RiPencilLine} fontSize="16" />}
-                  >
-                    Editar
-                  </Button>
-                </Td>
-              </Tr>
-            </Tbody>
-          </Table>
-          <Pagination />
+                    <Td>
+                      <Box>
+                        <Text fontWeight="bold">
+                          {user.name}
+                        </Text>
+                        <Text fontSize="sm" color="gray.300">
+                          {user.email}
+                        </Text>
+                      </Box>
+                    </Td>
+                    {isWideVersion && <Td>{user.createdAt}</Td>}
+                    <Td>
+                      <Button
+                        as="a"
+                        colorScheme="purple"
+                        size="sm"
+                        fontSize="sm"
+                        leftIcon={<Icon as={RiPencilLine} fontSize="16" />}
+                      >
+                        Editar
+                      </Button>
+                    </Td>
+                  </Tr>
+                  )
+                })}
+                </Tbody>
+              </Table>
+              <Pagination />
+            </>
+          )}
         </Box>
       </Flex>
     </Box>
