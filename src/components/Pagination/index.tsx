@@ -9,12 +9,12 @@ interface PaginationProps {
 }
 
 const siblingsCount = 1;
-function generatePagesArray(to: number, from: number) {
-  return [...new Array(to - from)]
+function generatePagesArray( from: number, to: number) {
+  return [...new Array(to -from)]
     .map((_, index) => {
       return from + index + 1;
     })
-    .filter((page) => page > 0);
+    .filter(page => page > 0);
 }
 export function Pagination({
   totalCountOfRegisters,
@@ -48,27 +48,27 @@ export function Pagination({
         <strong>0</strong>-<strong>10</strong> de <strong>100</strong>
       </Box>
       <Stack direction="row" spacing="2">
-        {currentPage > siblingsCount + 1 &&
+        {currentPage > siblingsCount + 1 &&(
         <>
-         (<PaginationItem number={1}  /> {currentPage>(2+ siblingsCount)&& <Text width="6" color="gray.300" textAlign="center">...</Text>})
-         </>}
+         <PaginationItem onPageChange={onPageChange}number={1}  /> {currentPage>(2+ siblingsCount)&& <Text width="6" color="gray.300" textAlign="center">...</Text>}
+         </>)}
         
         {previousPages.length > 0 &&
-          previousPages.map((page) => {
-            return <PaginationItem key={page} number={page} />;
+          previousPages.map(page => {
+            return <PaginationItem onPageChange={onPageChange} key={page} number={page} />;
           })}
 
-        <PaginationItem number={currentPage} isCurrent />
+        <PaginationItem onPageChange={onPageChange}number={currentPage} isCurrent />
 
         {nextPages.length > 0 &&
           nextPages.map((page) => {
-            return <PaginationItem key={page} number={page} />;
+            return <PaginationItem onPageChange={onPageChange} key={page} number={page} />;
           })}
 
         {currentPage + siblingsCount > lastPage && (
         <>
         {(currentPage + siblingsCount+ 1)<  lastPage && <Text width="6" color="gray.300" textAlign="center">...</Text>}
-        <PaginationItem number={lastPage} />
+        <PaginationItem onPageChange={onPageChange} number={lastPage} />
         </>)}
       </Stack>
     </Stack>
